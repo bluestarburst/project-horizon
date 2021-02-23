@@ -4,7 +4,8 @@
   "scripts": {
     "server": "node server.js",
     "start": "electron ./dist/main.bundle.js",
-    "dev": "rimraf dist && cross-env NODE_ENV=development webpack --watch --progress --color",
+    "dev": "rimraf dist && cross-env NODE_ENV=development webpack --watch --progress --color --config webpack.config.js",
+    "docs": "rimraf docs && cross-env NODE_ENV=development webpack --config docs.config.js",
     "build": "electron-builder build"
   },
   "main": "./dist/main.bundle.js",
