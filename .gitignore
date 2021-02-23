@@ -1,0 +1,6 @@
+node_modules
+blender
+yarn.lock
+yarn-error.log
+dist
+bluestarburst.github.io
