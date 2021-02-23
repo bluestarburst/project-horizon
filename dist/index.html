@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WebRTC Game Thing</title>
+</head>
+
+<body>
+    <nav id="nav">
+        <div id="titleshown"></div>
+        <div id="buttons">
+            <div id="minimize"><span>&dash;</span></div>
+            <div id="maximize"><span>&square;</span></div>
+            <div id="quit"><span>&times;</span></div>
+        </div>
+    </nav>
+    <main id="main">
+        <div id="root">
+        </div>
+        <div id="init">
+            <input id="name" placeholder="name" />
+            <button id="conn">connect</button>
+        </div>
+        <div id="container">
+            <input id="message" placeholder="message" />
+            <button id="send">send</button>
+            <div id="chat"></div>
+        </div>
+
+    </main>
+<script src="renderer.bundle.js"></script></body>
+<style>
+    html {
+        overflow: hidden;
+    }
+
+    nav {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 30px;
+        background-color: #333333;
+        -webkit-app-region: drag;
+        -webkit-user-select: none;
+        position: fixed;
+        z-index: 1;
+    }
+
+    nav #titleshown {
+        width: 30%;
+        height: 100%;
+        line-height: 30px;
+        color: #f7f7f7;
+        float: left;
+        padding: 0 0 0 1em;
+    }
+
+    nav #buttons {
+        float: right;
+        width: 150px;
+        height: 100%;
+        line-height: 30px;
+        background-color: #222222;
+        -webkit-app-region: no-drag;
+    }
+
+    nav #buttons #minimize,
+    nav #buttons #maximize,
+    nav #buttons #quit {
+        float: left;
+        height: 100%;
+        width: 33%;
+        text-align: center;
+        color: #f7f7f7;
+        cursor: default;
+    }
+
+    nav #buttons #minimize:hover {
+        background-color: #333333aa;
+    }
+
+    nav #buttons #maximize:hover {
+        background-color: #333333aa;
+    }
+
+    nav #buttons #quit:hover {
+        background-color: #ff0000dd;
+    }
+
+    main {
+        position: absolute;
+        left: 0;
+        padding: 1%;
+        width: 98%;
+        z-index: 100;
+    }
+
+    p {
+        width: max-content;
+        float: right;
+        padding: 3% 6% 3% 6%;
+        border-radius: 10px 0 0 10px;
+        background-color: #222222;
+    }
+
+    .slideIn {
+        display: inline-block;
+        opacity: 0;
+        animation: slideFade 3s;
+    }
+
+    @keyframes slideFade {
+        0% {
+            margin-left: 100%;
+            opacity: 1;
+        }
+
+        25% {
+            margin-left: 0%;
+        }
+
+        75% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+        }
+    }
+</style>
+
+</html>
