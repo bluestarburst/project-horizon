@@ -9,8 +9,8 @@ const capp = express();
 var path = require('path');
 
 const serverConfig = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem'),
+  key: fs.readFileSync(__dirname + '/key.pem'),
+  cert: fs.readFileSync(__dirname + '/cert.pem'),
 };
 
 const HTTPS_PORT = 443;
@@ -21,7 +21,7 @@ const port = process.env.PORT || 26950;
 const server = https.createServer(serverConfig, app);
 
 capp.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname + '/dist/index.html'));
+  res.sendFile(path.join(__dirname,'..') + '/dist/index.html');
 });
 
 capp.use(express.static('dist'))

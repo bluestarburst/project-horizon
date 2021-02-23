@@ -4,3 +4,5 @@ yarn.lock
 yarn-error.log
 bluestarburst.github.io
 dist
+server/cert.pem
+server/key.pem
