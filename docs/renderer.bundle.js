@@ -74,6 +74,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+var global = global || window;
+var Buffer = Buffer || [];
+var process = process || {
+  env: {
+    DEBUG: undefined
+  },
+  version: []
+};
 var name = "";
 var conn;
 document.getElementById("container").style.display = 'none';
@@ -270,7 +278,8 @@ class renderModel {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => /* binding */ Scene
+/* harmony export */   "default": () => /* binding */ Scene,
+/* harmony export */   "meshes": () => /* binding */ meshes
 /* harmony export */ });
 /* harmony import */ var react_bootstrap_Button__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-bootstrap/Button */ "./node_modules/react-bootstrap/esm/Button.js");
 /* harmony import */ var react_bootstrap_InputGroup__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-bootstrap/InputGroup */ "./node_modules/react-bootstrap/esm/InputGroup.js");
@@ -293,6 +302,7 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
+ //import Cube from './cube'
 
 
 /*
@@ -301,6 +311,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { PerspectiveCamera } from '@react-three/drei'
 */
 
+const fps = 60;
 let keys = {};
 let dir = [0, 0];
 let pos = {
@@ -451,7 +462,7 @@ function LocalPlayer(props) {
     }
 
     state.ready = false;
-    const timeUntilNextFrame = 1000 / props.fps - clock.getDelta();
+    const timeUntilNextFrame = 1000 / fps - clock.getDelta();
     setTimeout(() => {
       state.ready = true;
       state.invalidate();
@@ -543,8 +554,7 @@ function LocalPlayer(props) {
         var transAx = new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(-collisionResults[0].face.normal.x, collisionResults[0].face.normal.y, collisionResults[0].face.normal.z);
         col.current.translateOnAxis(transAx, step);
         testc = true;
-        rotCol = true;
-        console.log(collisionResults[0]);
+        rotCol = true; //console.log(collisionResults[0]);
       }
     }
 
@@ -668,7 +678,7 @@ function LocalPlayer(props) {
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("meshStandardMaterial", {
     color: 'purple',
     transparent: true,
-    opacity: 0
+    opacity: 0.5
   })));
 }
 
@@ -774,6 +784,7 @@ function Scene(props) {
   }))));
 } //<Model tag={"Ground"} position={[0, -1, 0]} scale={[100, 1, 100]} color={'gray'} />
 //<Model position={[10, 0, 0]} scale={[0.25, 0.25, 0.25]} color={'white'} />
+
 
 function Loading(props) {
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react__WEBPACK_IMPORTED_MODULE_1__.Fragment, null);
@@ -980,6 +991,8 @@ function checkScrollDirectionIsUp(event) {
 
   return event.deltaY < 0;
 }
+
+
 
 /***/ }),
 

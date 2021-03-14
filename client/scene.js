@@ -9,6 +9,7 @@ import { Vector3 } from 'three';
 
 import model from './models/map.glb'
 import renderModel from './modelRenderer'
+//import Cube from './cube'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -17,6 +18,8 @@ import { AxesHelper } from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { PerspectiveCamera } from '@react-three/drei'
 */
+
+const fps = 60;
 
 let keys = {};
 let dir = [0, 0];
@@ -192,7 +195,7 @@ function LocalPlayer(props) {
         }
 
         state.ready = false;
-        const timeUntilNextFrame = (1000 / props.fps) - clock.getDelta();
+        const timeUntilNextFrame = (1000 / fps) - clock.getDelta();
 
         setTimeout(() => {
             state.ready = true;
@@ -273,13 +276,13 @@ function LocalPlayer(props) {
 
 
         //let temp = new THREE.Euler().copy(col.current.rotation);
-        
+
 
         // wall collision detection
 
-        col.current.rotation.set(play.current.rotation.x,play.current.rotation.y,play.current.rotation.z );
+        col.current.rotation.set(play.current.rotation.x, play.current.rotation.y, play.current.rotation.z);
 
-    
+
         var testc = false;
         var rotCol = false;
         for (var i = 0; i < col.current.geometry.attributes.position.array.length - 2; i += 3) {
@@ -292,11 +295,11 @@ function LocalPlayer(props) {
 
             var collisionResults = coll.intersectObjects(meshes);
             if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() && !collisionResults[0].object.name.includes("ground")) {
-                var transAx = new THREE.Vector3(-collisionResults[0].face.normal.x,collisionResults[0].face.normal.y,collisionResults[0].face.normal.z)
+                var transAx = new THREE.Vector3(-collisionResults[0].face.normal.x, collisionResults[0].face.normal.y, collisionResults[0].face.normal.z)
                 col.current.translateOnAxis(transAx, step);
                 testc = true;
                 rotCol = true;
-                console.log(collisionResults[0]);
+                //console.log(collisionResults[0]);
             }
         }
 
@@ -305,7 +308,7 @@ function LocalPlayer(props) {
         if (!testc) {
             col.current.translateOnAxis(tempAx, -zVel);
             col.current.translateOnAxis(tempAx2, xVel);
-            play.current.position.set(col.current.position.x,col.current.position.y,col.current.position.z);
+            play.current.position.set(col.current.position.x, col.current.position.y, col.current.position.z);
         }
 
         //col.current.rotation.set(temp.x, temp.y, temp.z);
@@ -430,7 +433,7 @@ function LocalPlayer(props) {
                 {...props}
                 ref={col}>
                 <boxBufferGeometry args={[0.9, 2, 0.9]} />
-                <meshStandardMaterial color={'purple'} transparent opacity={0} />
+                <meshStandardMaterial color={'purple'} transparent opacity={0.5} />
             </mesh>
         </>
     )
@@ -519,7 +522,7 @@ function Map(props) {
 
 
 
-export default function Scene(props) {
+function Scene(props) {
 
     const style = {
         position: "absolute",
@@ -553,7 +556,6 @@ export default function Scene(props) {
             <LocalPlayer />
             <RemotePlayers />
             <Camera rotation={[-Math.PI / 6, 0, 0]} />
-
 
             <Suspense fallback={<Loading position={[0, 0, 0]} />}>
                 <Map position={[0, 0, 0]} />
@@ -765,3 +767,5 @@ function checkScrollDirectionIsUp(event) {
     }
     return event.deltaY < 0;
 }
+
+export {Scene as default, meshes};

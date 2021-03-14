@@ -53,6 +53,7 @@
     "react-dom": "^17.0.1",
     "react-three-fiber": "^5.3.11",
     "remote": "^0.2.6",
-    "three": "^0.125.2"
+    "three": "^0.125.2",
+    "use-cannon": "^0.5.3"
   }
 }

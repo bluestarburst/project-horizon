@@ -3,6 +3,13 @@ import React from 'react'
 import { render } from 'react-dom'
 import Scene from './scene'
 
+var global = global || window;
+var Buffer = Buffer || [];
+var process = process || {
+  env: { DEBUG: undefined },
+  version: []
+};
+
 var name = "";
 var conn;
 document.getElementById("container").style.display = 'none';
