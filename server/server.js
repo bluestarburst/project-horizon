@@ -29,10 +29,11 @@ capp.use(express.static('dist'))
 const httpsServer = https.createServer(serverConfig, capp);
 httpsServer.listen(HTTPS_PORT, '0.0.0.0');
 
+/*
 http.createServer(function (req, res) {
     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
     res.end();
-}).listen(80);
+}).listen(80);*/
 
 
 //initialize the WebSocket server instance

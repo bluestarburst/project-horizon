@@ -12,6 +12,7 @@ import renderModel from './modelRenderer'
 //import Cube from './cube'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Physics, useBox, usePlane } from '@react-three/cannon';
 
 /*
 import { AxesHelper } from 'three';
@@ -158,31 +159,11 @@ var initpos = JSON.parse(getCookie('session'));
 function LocalPlayer(props) {
 
     const [clock] = React.useState(new THREE.Clock());
-
-    const play = useRef();
+    const [play, api] = useBox(() => ({ mass: 1, scale:[1,2,1], ...props }))
 
     var loaded = false;
-    var xVel = 0;
-    var zVel = 0;
-    var yVel = 0;
-    const g = -0.01;
-    var grounded = false;
-    var jumping = false;
-    var correcting = false;
-    const step = 0.01;
-    const speed = 0.1;
-    const correction = 0.05;
-    var tempAx = new THREE.Vector3(0, 0, 0);
-    var tempAx2 = new THREE.Vector3(0, 0, 0);
-    var world = new THREE.Euler(0, 0, 0, 'XYZ');
-    var tempY = 0;
 
-    var oldPos = new THREE.Vector3(0, 0, 0);
-    var newPos = new THREE.Vector3(0, 0, 0);
-
-    const col = useRef();
-
-    useFrame((state) => {
+    useFrame(() => {
 
         if (!loaded && meshes.length > 0) {
             meshes.push(play.current);
@@ -194,222 +175,23 @@ function LocalPlayer(props) {
             initpos = null;
         }
 
-        state.ready = false;
-        const timeUntilNextFrame = (1000 / fps) - clock.getDelta();
-
-        setTimeout(() => {
-            state.ready = true;
-            state.invalidate();
-        }, Math.max(0, timeUntilNextFrame));
-
-        play.current.getWorldPosition(oldPos);
-
-        tempAx.set(axis.x, 0, axis.z);
-        tempAx2.set(0, 1, 0);
-        tempAx2.applyAxisAngle(tempAx, Math.PI / 2);
-        tempAx2.set(tempAx2.x, 0, tempAx2.z);
-
-        if (keys['w'] && zVel > -speed) {
-            zVel -= step;
+        if (keys['w']) {
+            api.position.set(play.current.position.x,play.current.position.y,play.current.position.z-1);
         }
-        if (keys['s'] && zVel < speed) {
-            zVel += step;
+        if (keys['s']) {
+            api.position.set(play.current.position.x,play.current.position.y,play.current.position.z+1);
         }
-        if (keys['a'] && xVel > -speed) {
-            xVel -= step
+        if (keys['a']) {
+            api.position.set(play.current.position.x-1,play.current.position.y,play.current.position.z);
         }
-        if (keys['d'] && xVel < speed) {
-            xVel += step
+        if (keys['d']) {
+            api.position.set(play.current.position.x+1,play.current.position.y,play.current.position.z);
         }
 
-        if (zVel != 0 && !keys['w'] && !keys['s']) {
-            if (zVel < -step)
-                zVel += step;
-            else if (zVel > step)
-                zVel -= step;
-            else
-                zVel = 0
-        }
-
-        if (xVel != 0 && !keys['a'] && !keys['d']) {
-            if (xVel < -step)
-                xVel += step;
-            else if (xVel > step)
-                xVel -= step;
-            else
-                xVel = 0;
-        }
-
-        if (keys['w'] && keys['a']) {
-            if (xVel > 0) {
-                xVel = speed / 2;
-            }
-            if (zVel > 0) {
-                zVel = speed / 2;
-            }
-        }
-        if (keys['s'] && keys['a']) {
-            if (xVel < 0) {
-                xVel = -speed / 2;
-            }
-            if (zVel > 0) {
-                zVel = speed / 2;
-            }
-        }
-        if (keys['s'] && keys['d']) {
-            if (xVel < 0) {
-                xVel = -speed / 2;
-            }
-            if (zVel < 0) {
-                zVel = -speed / 2;
-            }
-        }
-        if (keys['w'] && keys['d']) {
-            if (xVel > 0) {
-                xVel = speed / 2;
-            }
-            if (zVel < 0) {
-                zVel = -speed / 2;
-            }
-        }
-
-
-
-        //let temp = new THREE.Euler().copy(col.current.rotation);
-
-
-        // wall collision detection
-
-        col.current.rotation.set(play.current.rotation.x, play.current.rotation.y, play.current.rotation.z);
-
-
-        var testc = false;
-        var rotCol = false;
-        for (var i = 0; i < col.current.geometry.attributes.position.array.length - 2; i += 3) {
-            let localVertex = new THREE.Vector3(col.current.geometry.attributes.position.array[i], col.current.geometry.attributes.position.array[i + 1], col.current.geometry.attributes.position.array[i + 2]);
-
-            var globalVertex = localVertex.applyMatrix4(col.current.matrix);
-            var directionVector = globalVertex.sub(col.current.position);
-
-            coll.set(col.current.position, directionVector.clone().normalize());
-
-            var collisionResults = coll.intersectObjects(meshes);
-            if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() && !collisionResults[0].object.name.includes("ground")) {
-                var transAx = new THREE.Vector3(-collisionResults[0].face.normal.x, collisionResults[0].face.normal.y, collisionResults[0].face.normal.z)
-                col.current.translateOnAxis(transAx, step);
-                testc = true;
-                rotCol = true;
-                //console.log(collisionResults[0]);
-            }
-        }
-
-        col.current.rotation.set(world.x, world.y, world.z);
-
-        if (!testc) {
-            col.current.translateOnAxis(tempAx, -zVel);
-            col.current.translateOnAxis(tempAx2, xVel);
-            play.current.position.set(col.current.position.x, col.current.position.y, col.current.position.z);
-        }
-
-        //col.current.rotation.set(temp.x, temp.y, temp.z);
-
-
-
-
-        // ground collision detection
-
-        //col.current.position.set(play.current.position.x, col.current.position.y, play.current.position.z);
-
-        testc = false;
-        for (var i = 0; i < col.current.geometry.attributes.position.array.length - 2; i += 3) {
-            let localVertex = new THREE.Vector3(col.current.geometry.attributes.position.array[i], col.current.geometry.attributes.position.array[i + 1], col.current.geometry.attributes.position.array[i + 2]);
-
-            var globalVertex = localVertex.applyMatrix4(col.current.matrix);
-            var directionVector = globalVertex.sub(col.current.position);
-
-            coll.set(col.current.position, directionVector.clone().normalize());
-
-            var collisionResults = coll.intersectObjects(ground);
-            if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-                testc = true;
-            }
-        }
-        if (keys[' '] && (correcting || grounded)) {
-            jumping = true;
-            correcting = false;
-            grounded = false;
-            yVel = speed;
-        }
-        if (testc && !correcting && !grounded) {
-            jumping = false;
-            correcting = true;
-            yVel = correction;
-        }
-        if (testc && correcting) {
-            //tempY = col.current.position.y;
-        }
-        if (grounded && !testc) {
-            grounded = false;
-        }
-        if (!grounded && !correcting) {
-            yVel -= step / 3;
-        }
-        if (!testc && correcting) {
-            grounded = true;
-            correcting = false;
-            yVel = 0;
-            tempY = col.current.position.y;
-            //col.current.position.set(col.current.position.x,tempY,col.current.position.z);
-        }
-
-        if (grounded && testc) {
-            grounded = false;
-            correcting = true;
-            yVel = correction;
-        }
-
-        if (yVel < -correction || jumping) {
-            tempY = col.current.position.y;
-        }
-
-        play.current.position.set(play.current.position.x, tempY, play.current.position.z);
-
-        //console.log(yVel + ", grounded: " + grounded + ", correcting: " + correcting + ", col: " + testc);
-
-        col.current.translateY(yVel);
-
-        if ((keys['w'] || keys['s'] || keys['a'] || keys['d'])) {
-
-            var oldRot = play.current.rotation.clone();
-
-            play.current.getWorldPosition(newPos);
-            newPos.sub(oldPos).normalize();
-            newPos.set(newPos.x, 0, newPos.z);
-            newPos.add(play.current.position);
-            //var angleTo = Math.atan((newPos.z-oldPos.z)/(newPos.x-oldPos.x));
-            //play.current.rotation.set(play.current.rotation.x,angleTo,play.current.rotation.z)
-
-            //
-            //console.log(newPos); 
-            //newPos.set(0, ((newPos.x > 0) ? newPos.x : newPos.z), 0);
-
-            //var tempQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler().setFromVector3(newPos));
-            //play.current.setRotationFromQuaternion(play.current.quaternion.slerp(tempQuat, 0.1))
-            //play.current.setRotationFromEuler(new THREE.Euler().setFromVector3(newPos));
-            play.current.lookAt(newPos);
-            var newRot = play.current.quaternion.clone();
-            play.current.rotation.set(oldRot.x, oldRot.y, oldRot.z);
-
-            play.current.quaternion.rotateTowards(newRot, 0.075);
-        }
-
-        if (keys['e']) {
-            play.current.rotateY(0.01);
-            console.log(play.current.rotation);
-        }
+        //api.position.set(play.current.position.x+1,play.current.position.y,play.current.position.z);
 
         pos.x = play.current.position.x;
-        pos.y = tempY + 0.5;
+        pos.y = play.current.position.y;
         pos.z = play.current.position.z;
 
         //play.current.rotation = rot;
@@ -420,22 +202,16 @@ function LocalPlayer(props) {
     })
 
     return (
-        <>
-            <mesh
-                {...props}
-                ref={play}
-                name='local'>
-                <boxBufferGeometry args={[1, 2, 1]} />
-                <meshStandardMaterial color={'orange'} />
-                <axesHelper scale={[3, 3, 3]} />
-            </mesh>
-            <mesh
-                {...props}
-                ref={col}>
-                <boxBufferGeometry args={[0.9, 2, 0.9]} />
-                <meshStandardMaterial color={'purple'} transparent opacity={0.5} />
-            </mesh>
-        </>
+
+        <mesh
+            {...props}
+            ref={play}
+            name='local'>
+            <boxBufferGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial color={'orange'} />
+            <axesHelper scale={[3, 3, 3]} />
+        </mesh>
+
     )
 }
 
@@ -520,7 +296,15 @@ function Map(props) {
     );
 }
 
-
+function Plane(props) {
+    const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
+    return (
+      <mesh ref={ref}>
+        <planeBufferGeometry args={[100, 100]} />
+      </mesh>
+    )
+  }
+  
 
 function Scene(props) {
 
@@ -550,16 +334,29 @@ function Scene(props) {
         <div id={"paused"} style={overlay} onClick={clicks}> </div>
         <input id="focus" />
         <Logs />
-        <Canvas style={style} id="canvas" >
+        <Canvas style={style} id="canvas" shadowMap>
             <ambientLight />
             <pointLight position={[10, 10, 10]} />
-            <LocalPlayer />
+
+            <directionalLight
+                intensity={0.5}
+                castShadow
+                shadow-mapSize-height={512}
+                shadow-mapSize-width={512}
+            />
+
             <RemotePlayers />
             <Camera rotation={[-Math.PI / 6, 0, 0]} />
 
-            <Suspense fallback={<Loading position={[0, 0, 0]} />}>
-                <Map position={[0, 0, 0]} />
-            </Suspense>
+            <Physics>
+                <LocalPlayer castShadow  />
+                <Plane position={[0,-20,0]} />
+                <Suspense fallback={<Loading position={[0, 0, 0]} />}>
+                    <Map position={[0, 0, 0]} />
+                </Suspense>
+            </Physics>
+
+
         </Canvas>
     </>);
 }
@@ -768,4 +565,4 @@ function checkScrollDirectionIsUp(event) {
     return event.deltaY < 0;
 }
 
-export {Scene as default, meshes};
+export { Scene as default, meshes };
