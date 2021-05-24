@@ -433,7 +433,7 @@ function LocalPlayer(props) {
                 {...props}
                 ref={col}>
                 <boxBufferGeometry args={[0.9, 2, 0.9]} />
-                <meshStandardMaterial color={'purple'} transparent opacity={0.5} />
+                <meshStandardMaterial color={'purple'} transparent opacity={0} />
             </mesh>
         </>
     )
