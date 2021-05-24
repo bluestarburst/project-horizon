@@ -1,6 +1,6 @@
 /*
  * ATTENTION: The "eval" devtool has been used (maybe by default in mode: "development").
- * This devtool is not neither made for production nor for readable output files.
+ * This devtool is neither made for production nor for readable output files.
  * It uses "eval()" calls to create a separate source file in the browser devtools.
  * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
  * or disable the default devtool with "devtool: false".
@@ -9,6 +9,16 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./client/preload.js":
+/*!***************************!*\
+  !*** ./client/preload.js ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+
+eval("\r\nconst { remote } = __webpack_require__(/*! electron */ \"electron\");\r\n\r\nlet currWindow = remote.BrowserWindow.getFocusedWindow();\r\n\r\nwindow.closeCurrentWindow = function () {\r\n  currWindow.close();\r\n}\r\n\r\nwindow.preload = function () {\r\n  return true;\r\n}\r\n\r\nwindow.minMaxWindow = function () {\r\n  if (currWindow.isMaximized()) {\r\n    currWindow.restore();\r\n  } else {\r\n    currWindow.maximize();\r\n  }\r\n}\r\n\r\nwindow.minimize = function () {\r\n  currWindow.minimize();\r\n}\n\n//# sourceURL=webpack://react-room/./client/preload.js?");
+
+/***/ }),
+
 /***/ "electron":
 /*!***************************!*\
   !*** external "electron" ***!
@@ -16,7 +26,7 @@
 /***/ ((module) => {
 
 "use strict";
-eval("module.exports = require(\"electron\");;\n\n//# sourceURL=webpack://react-room/external_%22electron%22?");
+module.exports = require("electron");;
 
 /***/ })
 
@@ -28,8 +38,9 @@ eval("module.exports = require(\"electron\");;\n\n//# sourceURL=webpack://react-
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		if(__webpack_module_cache__[moduleId]) {
-/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
@@ -46,12 +57,11 @@ eval("module.exports = require(\"electron\");;\n\n//# sourceURL=webpack://react-
 /******/ 	}
 /******/ 	
 /************************************************************************/
-(() => {
-/*!***************************!*\
-  !*** ./client/preload.js ***!
-  \***************************/
-eval("\r\nconst { remote } = __webpack_require__(/*! electron */ \"electron\");\r\n\r\nlet currWindow = remote.BrowserWindow.getFocusedWindow();\r\n\r\nwindow.closeCurrentWindow = function () {\r\n  currWindow.close();\r\n}\r\n\r\nwindow.preload = function () {\r\n  return true;\r\n}\r\n\r\nwindow.minMaxWindow = function () {\r\n  if (currWindow.isMaximized()) {\r\n    currWindow.restore();\r\n  } else {\r\n    currWindow.maximize();\r\n  }\r\n}\r\n\r\nwindow.minimize = function () {\r\n  currWindow.minimize();\r\n}\n\n//# sourceURL=webpack://react-room/./client/preload.js?");
-})();
-
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module can't be inlined because the eval devtool is used.
+/******/ 	var __webpack_exports__ = __webpack_require__("./client/preload.js");
+/******/ 	
 /******/ })()
 ;
