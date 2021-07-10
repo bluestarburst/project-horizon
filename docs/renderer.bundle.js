@@ -21158,11 +21158,10 @@ var maxRad = 4;
 function Camera(props) {
   const ref = (0,react__WEBPACK_IMPORTED_MODULE_1__.useRef)();
   const col = (0,react__WEBPACK_IMPORTED_MODULE_1__.useRef)();
-  const {
-    setDefaultCamera
-  } = (0,_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.useThree)(); // Make the camera known to the system
-
-  (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => void setDefaultCamera(ref.current), []);
+  const set = (0,_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.useThree)(state => state.set);
+  (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => void set({
+    camera: ref.current
+  }), []);
   var stopped = false; // Update it every frame
 
   (0,_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.useFrame)(() => {
@@ -21212,7 +21211,7 @@ function Model(props) {
     onPointerOver: event => setHover(true),
     onPointerOut: event => setHover(false)
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("boxBufferGeometry", {
-    args: [1, 1, 1]
+    args: [1, 2, 1]
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("meshStandardMaterial", {
     color: props.color
   }));
@@ -21573,11 +21572,11 @@ function Map(props) {
 
 function Scene(props) {
   const style = {
-    position: "absolute",
+    position: "relative",
     top: "0",
     left: "0",
     width: "100vw",
-    height: "100vh",
+    height: "56.25vw",
     backgroundColor: "#454545"
   };
   const overlay = {
@@ -21596,7 +21595,18 @@ function Scene(props) {
     onClick: clicks
   }, " "), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("input", {
     id: "focus"
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Logs, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.Canvas, {
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Logs, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    style: {
+      position: "absolute",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100vw",
+      height: "100vh",
+      top: "0",
+      left: "0"
+    }
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.Canvas, {
     style: style,
     id: "canvas"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("ambientLight", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("pointLight", {
@@ -21609,7 +21619,7 @@ function Scene(props) {
     })
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Map, {
     position: [0, 0, 0]
-  }))));
+  })))));
 } //<Model tag={"Ground"} position={[0, -1, 0]} scale={[100, 1, 100]} color={'gray'} />
 //<Model position={[10, 0, 0]} scale={[0.25, 0.25, 0.25]} color={'white'} />
 
