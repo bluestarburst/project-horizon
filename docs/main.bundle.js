@@ -8,7 +8,7 @@
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("electron");;
+module.exports = require("electron");
 
 /***/ }),
 
@@ -19,7 +19,7 @@ module.exports = require("electron");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");;
+module.exports = require("fs");
 
 /***/ }),
 
@@ -30,7 +30,7 @@ module.exports = require("fs");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");;
+module.exports = require("path");
 
 /***/ })
 

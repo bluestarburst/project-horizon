@@ -26,7 +26,7 @@ eval("\r\nconst { remote } = __webpack_require__(/*! electron */ \"electron\");\
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("electron");;
+module.exports = require("electron");
 
 /***/ })
 

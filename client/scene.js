@@ -3,7 +3,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import webrtc from './webrtc'
 import React, { useRef, useState, useEffect, Suspense } from 'react'
-import { Canvas, useFrame, useThree } from 'react-three-fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from "three"
 import { Vector3 } from 'three';
 
@@ -37,9 +37,9 @@ var maxRad = 4;
 function Camera(props) {
     const ref = useRef()
     const col = useRef()
-    const { setDefaultCamera } = useThree()
-    // Make the camera known to the system
-    useEffect(() => void setDefaultCamera(ref.current), [])
+
+    const set = useThree((state) => state.set);
+    useEffect(() => void set({ camera: ref.current }), []);
 
     var stopped = false;
 
@@ -97,7 +97,7 @@ function Model(props) {
             ref={mesh}
             onPointerOver={(event) => setHover(true)}
             onPointerOut={(event) => setHover(false)}>
-            <boxBufferGeometry args={[1, 1, 1]} />
+            <boxBufferGeometry args={[1, 2, 1]} />
             <meshStandardMaterial color={props.color} />
         </mesh>
     )
@@ -525,11 +525,11 @@ function Map(props) {
 function Scene(props) {
 
     const style = {
-        position: "absolute",
+        position: "relative",
         top: "0",
         left: "0",
         width: "100vw",
-        height: "100vh",
+        height: "56.25vw",
         backgroundColor: "#454545",
     }
 
@@ -550,17 +550,19 @@ function Scene(props) {
         <div id={"paused"} style={overlay} onClick={clicks}> </div>
         <input id="focus" />
         <Logs />
-        <Canvas style={style} id="canvas" >
-            <ambientLight />
-            <pointLight position={[10, 10, 10]} />
-            <LocalPlayer />
-            <RemotePlayers />
-            <Camera rotation={[-Math.PI / 6, 0, 0]} />
+        <div style={{ position: "absolute", display: "flex", justifyContent: "center", alignItems: "center", width: "100vw", height: "100vh", top: "0", left: "0" }}>
+            <Canvas style={style} id="canvas" >
+                <ambientLight />
+                <pointLight position={[10, 10, 10]} />
+                <LocalPlayer />
+                <RemotePlayers />
+                <Camera rotation={[-Math.PI / 6, 0, 0]} />
 
-            <Suspense fallback={<Loading position={[0, 0, 0]} />}>
-                <Map position={[0, 0, 0]} />
-            </Suspense>
-        </Canvas>
+                <Suspense fallback={<Loading position={[0, 0, 0]} />}>
+                    <Map position={[0, 0, 0]} />
+                </Suspense>
+            </Canvas>
+        </div>
     </>);
 }
 
@@ -768,4 +770,4 @@ function checkScrollDirectionIsUp(event) {
     return event.deltaY < 0;
 }
 
-export {Scene as default, meshes};
+export { Scene as default, meshes };

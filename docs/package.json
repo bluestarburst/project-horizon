@@ -3,13 +3,13 @@
   "version": "0.0.1",
   "main": "./main.bundle.js",
   "dependencies": {
-    "@react-three/drei": "^3.3.0",
+    "@react-three/drei": "^3.11.2",
+    "@react-three/fiber": "^7.0.4",
     "bootstrap": "^4.5.3",
     "browser-window": "^0.4.0",
-    "react": "^17.0.1",
-    "react-bootstrap": "^1.4.3",
-    "react-dom": "^17.0.1",
-    "react-three-fiber": "^5.3.11",
+    "react": "^17.0.2",
+    "react-bootstrap": "^1.6.1",
+    "react-dom": "^17.0.2",
     "remote": "^0.2.6",
     "three": "^0.125.2",
     "use-cannon": "^0.5.3"

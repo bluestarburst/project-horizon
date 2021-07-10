@@ -1,11 +1,11 @@
-import { useLoader } from 'react-three-fiber'
+import { useLoader } from '@react-three/fiber'
 import React from 'react'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as THREE from 'three'
 
 export default class renderModel {
 
-    constructor(path, position = [0, 0, 0], rotation = [0,0,0], scale = [0,0,0]) {
+    constructor(path, position = [0, 0, 0], rotation = [0, 0, 0], scale = [0, 0, 0]) {
         this.loader = useLoader(GLTFLoader, path);
         this.original = this.loader.scene;
         this.position = position;
@@ -50,7 +50,7 @@ export default class renderModel {
         //console.log(this.ground);
         return this.ground;
     }
-    
+
     getMesh() {
         //console.log(this.meshes);
         return this.meshes;
@@ -61,7 +61,7 @@ export default class renderModel {
         //let mesh_ = new THREE.Mesh(mesh.geometry, mesh.material);
         //mesh.material.side = THREE.DoubleSide;
         //console.log(mesh.material.side);
-        
+
         if (mesh.name.includes("ground")) {
             this.ground.push(mesh);
         }
