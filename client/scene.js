@@ -525,13 +525,13 @@ function Map(props) {
 function Scene(props) {
 
     const style = {
-        position: "relative",
+        position: "absolute",
         top: "0",
         left: "0",
-        width: "100vw",
-        height: "56.25vw",
+        width: "100%",
+        height: "100%",
         backgroundColor: "#454545",
-    }
+    };
 
     const overlay = {
         backgroundColor: "rgba(0,0,0,0.2)",
@@ -541,7 +541,7 @@ function Scene(props) {
         left: 0,
         top: 0,
         "zIndex": 2,
-        display: "none"
+        display: "block"
     }
 
 
@@ -550,19 +550,17 @@ function Scene(props) {
         <div id={"paused"} style={overlay} onClick={clicks}> </div>
         <input id="focus" />
         <Logs />
-        <div style={{ position: "absolute", display: "flex", justifyContent: "center", alignItems: "center", width: "100vw", height: "100vh", top: "0", left: "0" }}>
-            <Canvas style={style} id="canvas" >
-                <ambientLight />
-                <pointLight position={[10, 10, 10]} />
-                <LocalPlayer />
-                <RemotePlayers />
-                <Camera rotation={[-Math.PI / 6, 0, 0]} />
+        <Canvas style={style} id="canvas" onClick={clicks}>
+            <ambientLight />
+            <pointLight position={[10, 10, 10]} />
+            <LocalPlayer />
+            <RemotePlayers />
+            <Camera rotation={[-Math.PI / 6, 0, 0]} />
 
-                <Suspense fallback={<Loading position={[0, 0, 0]} />}>
-                    <Map position={[0, 0, 0]} />
-                </Suspense>
-            </Canvas>
-        </div>
+            <Suspense fallback={<Loading position={[0, 0, 0]} />}>
+                <Map position={[0, 0, 0]} />
+            </Suspense>
+        </Canvas>
     </>);
 }
 
@@ -657,7 +655,29 @@ function Server() {
     </div>);
 }
 
-var paused = false;
+function clicks(e) {
+    if (paused && isResumeReady) {
+        paused = false;
+        document.getElementById('paused').style.display = 'none'
+        document.getElementById('root').requestPointerLock();
+        setCooldown();
+    }
+}
+
+var paused = true;
+
+var isResumeReady = true;
+var cooldown = '';
+
+function setCooldown() {
+    clearTimeout(cooldown);
+    isResumeReady = false;
+    cooldown = setTimeout(() => {
+        isResumeReady = true;
+    }, 1000);
+    isResumeReady = false;
+
+}
 
 document.addEventListener("keydown", event => {
 
@@ -677,17 +697,56 @@ document.addEventListener("keydown", event => {
     if (event.key == 'Tab') {
         event.preventDefault();
         if (!paused) {
+            setCooldown();
             document.exitPointerLock();
             document.getElementById('paused').style.display = 'block';
             paused = true;
-        } else {
+        } else if (isResumeReady) {
+            document.getElementById('root').requestPointerLock();
+            document.getElementById('paused').style.display = 'none';
+            paused = false;
+        }
+
+    }
+
+    /*
+    if (event.key == "Escape") {
+        event.preventDefault();
+        if (paused && isResumeReady) {
             document.getElementById('root').requestPointerLock();
             document.getElementById('paused').style.display = 'none';
             paused = false;
         }
     }
-    //console.log(paused);
+    //console.log(paused);*/
 });
+
+if ("onpointerlockchange" in document) {
+    document.addEventListener('pointerlockchange', lockChangeAlert, false);
+} else if ("onmozpointerlockchange" in document) {
+    document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+} else {
+    document.addEventListener('pointerlockchange', lockChangeAlert, false);
+}
+
+function lockChangeAlert() {
+    if (document.pointerLockElement === document.getElementById('root') ||
+        document.mozPointerLockElement === document.getElementById('root')) {
+        console.log('The pointer lock status is now locked');
+        // Do something useful in response
+        if (!paused) {
+            console.log("WOOHOO")
+        }
+    } else {
+        console.log('The pointer lock status is now unlocked');
+        if (!paused) {
+            setCooldown();
+            document.getElementById('paused').style.display = 'block';
+            paused = true;
+            keys = {}
+        }
+    }
+}
 
 document.addEventListener("keyup", event => {
     keys[event.key] = false;
@@ -696,13 +755,7 @@ document.addEventListener("keyup", event => {
 var timeout;
 const sensitivity = 1000;
 
-function clicks(e) {
-    if (paused) {
-        paused = false;
-        document.getElementById('paused').style.display = 'none'
-        document.getElementById('root').requestPointerLock();
-    }
-}
+
 
 document.addEventListener("mousemove", event => {
     if (paused) {
@@ -755,6 +808,9 @@ var scrollableElement = document.body; //document.getElementById('scrollableElem
 scrollableElement.addEventListener('wheel', checkScrollDirection);
 
 function checkScrollDirection(event) {
+    if (paused) {
+        return;
+    }
     if (!checkScrollDirectionIsUp(event)) {
         maxRad += 0.5;
     } else if (maxRad > 1) {

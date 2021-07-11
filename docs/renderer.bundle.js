@@ -21572,11 +21572,11 @@ function Map(props) {
 
 function Scene(props) {
   const style = {
-    position: "relative",
+    position: "absolute",
     top: "0",
     left: "0",
-    width: "100vw",
-    height: "56.25vw",
+    width: "100%",
+    height: "100%",
     backgroundColor: "#454545"
   };
   const overlay = {
@@ -21587,7 +21587,7 @@ function Scene(props) {
     left: 0,
     top: 0,
     "zIndex": 2,
-    display: "none"
+    display: "block"
   };
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Server, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "paused",
@@ -21595,20 +21595,10 @@ function Scene(props) {
     onClick: clicks
   }, " "), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("input", {
     id: "focus"
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Logs, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
-    style: {
-      position: "absolute",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      width: "100vw",
-      height: "100vh",
-      top: "0",
-      left: "0"
-    }
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.Canvas, {
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Logs, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.Canvas, {
     style: style,
-    id: "canvas"
+    id: "canvas",
+    onClick: clicks
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("ambientLight", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("pointLight", {
     position: [10, 10, 10]
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(LocalPlayer, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(RemotePlayers, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Camera, {
@@ -21619,7 +21609,7 @@ function Scene(props) {
     })
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Map, {
     position: [0, 0, 0]
-  })))));
+  }))));
 } //<Model tag={"Ground"} position={[0, -1, 0]} scale={[100, 1, 100]} color={'gray'} />
 //<Model position={[10, 0, 0]} scale={[0.25, 0.25, 0.25]} color={'white'} />
 
@@ -21713,7 +21703,28 @@ function Server() {
   }, "Connect!")))));
 }
 
-var paused = false;
+function clicks(e) {
+  if (paused && isResumeReady) {
+    paused = false;
+    document.getElementById('paused').style.display = 'none';
+    document.getElementById('root').requestPointerLock();
+    setCooldown();
+  }
+}
+
+var paused = true;
+var isResumeReady = true;
+var cooldown = '';
+
+function setCooldown() {
+  clearTimeout(cooldown);
+  isResumeReady = false;
+  cooldown = setTimeout(() => {
+    isResumeReady = true;
+  }, 1000);
+  isResumeReady = false;
+}
+
 document.addEventListener("keydown", event => {
   if (!paused) keys[event.key] = true;
 
@@ -21731,31 +21742,61 @@ document.addEventListener("keydown", event => {
     event.preventDefault();
 
     if (!paused) {
+      setCooldown();
       document.exitPointerLock();
       document.getElementById('paused').style.display = 'block';
       paused = true;
-    } else {
+    } else if (isResumeReady) {
       document.getElementById('root').requestPointerLock();
       document.getElementById('paused').style.display = 'none';
       paused = false;
     }
-  } //console.log(paused);
+  }
+  /*
+  if (event.key == "Escape") {
+      event.preventDefault();
+      if (paused && isResumeReady) {
+          document.getElementById('root').requestPointerLock();
+          document.getElementById('paused').style.display = 'none';
+          paused = false;
+      }
+  }
+  //console.log(paused);*/
 
 });
+
+if ("onpointerlockchange" in document) {
+  document.addEventListener('pointerlockchange', lockChangeAlert, false);
+} else if ("onmozpointerlockchange" in document) {
+  document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+} else {
+  document.addEventListener('pointerlockchange', lockChangeAlert, false);
+}
+
+function lockChangeAlert() {
+  if (document.pointerLockElement === document.getElementById('root') || document.mozPointerLockElement === document.getElementById('root')) {
+    console.log('The pointer lock status is now locked'); // Do something useful in response
+
+    if (!paused) {
+      console.log("WOOHOO");
+    }
+  } else {
+    console.log('The pointer lock status is now unlocked');
+
+    if (!paused) {
+      setCooldown();
+      document.getElementById('paused').style.display = 'block';
+      paused = true;
+      keys = {};
+    }
+  }
+}
+
 document.addEventListener("keyup", event => {
   keys[event.key] = false;
 });
 var timeout;
 const sensitivity = 1000;
-
-function clicks(e) {
-  if (paused) {
-    paused = false;
-    document.getElementById('paused').style.display = 'none';
-    document.getElementById('root').requestPointerLock();
-  }
-}
-
 document.addEventListener("mousemove", event => {
   if (paused) {
     return;
@@ -21815,6 +21856,10 @@ var scrollableElement = document.body; //document.getElementById('scrollableElem
 scrollableElement.addEventListener('wheel', checkScrollDirection);
 
 function checkScrollDirection(event) {
+  if (paused) {
+    return;
+  }
+
   if (!checkScrollDirectionIsUp(event)) {
     maxRad += 0.5;
   } else if (maxRad > 1) {
@@ -108497,9 +108542,9 @@ window.onload = function () {
     document.getElementById("main").style.paddingTop = '0';
     document.getElementById("main").style.top = '0';
   }
-};
+}; //document.getElementById('root').requestPointerLock();
 
-document.getElementById('root').requestPointerLock();
+
 (0,react_dom__WEBPACK_IMPORTED_MODULE_1__.render)( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_scene__WEBPACK_IMPORTED_MODULE_2__.default, null)), document.getElementById("root"));
 })();
 
