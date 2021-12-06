@@ -66,7 +66,7 @@ export default class webrtc {
 
     async connect() {
         return new Promise(function (resolve, reject) {
-            var server = new WebSocket("wss://47.184.194.78:26950/");
+            var server = new WebSocket("wss://stuff.bryanthargreave.repl.co:26950/");
             server.onopen = function () {
                 resolve(server);
             };

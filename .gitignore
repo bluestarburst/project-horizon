@@ -7,3 +7,4 @@ dist
 server/cert.pem
 server/key.pem
 scraps
+package-lock.json
