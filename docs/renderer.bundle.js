@@ -21963,7 +21963,7 @@ class webrtc {
 
   async connect() {
     return new Promise(function (resolve, reject) {
-      var server = new WebSocket("wss://stuff.bryanthargreave.repl.co:26950/");
+      var server = new WebSocket("wss://websocket.bryanthargreave.repl.co/");
 
       server.onopen = function () {
         resolve(server);
