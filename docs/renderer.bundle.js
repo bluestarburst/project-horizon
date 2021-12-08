@@ -21139,6 +21139,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { PerspectiveCamera } from '@react-three/drei'
 */
 
+var initpos = JSON.parse(getCookie('session'));
 const fps = 60;
 let keys = {};
 let dir = [0, 0];
@@ -21162,7 +21163,11 @@ function Camera(props) {
   (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => void set({
     camera: ref.current
   }), []);
-  var stopped = false; // Update it every frame
+  var stopped = false;
+  (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    ref.current.aspect = window.innerWidth / window.innerHeight;
+    ref.current.updateProjectionMatrix(); // renderer.setSize(window.innerWidth, window.innerHeight);
+  }, []); // Update it every frame
 
   (0,_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.useFrame)(() => {
     ref.current.updateMatrixWorld();
@@ -21199,6 +21204,7 @@ function Camera(props) {
     }
   });
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("perspectiveCamera", _extends({
+    aspect: 16 / 9,
     ref: ref
   }, props)));
 }
@@ -21254,8 +21260,6 @@ function Player(props) {
   }));
 }
 
-var initpos = JSON.parse(getCookie('session'));
-
 function LocalPlayer(props) {
   const [clock] = react__WEBPACK_IMPORTED_MODULE_1__.useState(new three__WEBPACK_IMPORTED_MODULE_2__.Clock());
   const play = (0,react__WEBPACK_IMPORTED_MODULE_1__.useRef)();
@@ -21274,8 +21278,15 @@ function LocalPlayer(props) {
   var tempAx2 = new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(0, 0, 0);
   var world = new three__WEBPACK_IMPORTED_MODULE_2__.Euler(0, 0, 0, 'XYZ');
   var tempY = 0;
-  var oldPos = new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(0, 0, 0);
-  var newPos = new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(0, 0, 0);
+
+  if (initpos) {
+    var oldPos = new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(initpos.pos.x, initpos.pos.y, initpos.pos.z);
+    var newPos = new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(initpos.pos.x, initpos.pos.y, initpos.pos.z);
+  } else {
+    var oldPos = new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(0, 0, 0);
+    var newPos = new three__WEBPACK_IMPORTED_MODULE_2__.Vector3(0, 0, 0);
+  }
+
   const col = (0,react__WEBPACK_IMPORTED_MODULE_1__.useRef)();
   (0,_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.useFrame)(state => {
     if (!loaded && meshes.length > 0) {
@@ -21285,6 +21296,10 @@ function LocalPlayer(props) {
 
     if (initpos) {
       play.current.position.set(initpos.pos.x, initpos.pos.y, initpos.pos.z);
+      col.current.position.set(initpos.pos.x, initpos.pos.y, initpos.pos.z);
+      pos.x = initpos.pos.x;
+      pos.y = initpos.pos.y;
+      pos.z = initpos.pos.z;
       initpos = null;
     }
 
@@ -21491,6 +21506,7 @@ function LocalPlayer(props) {
   });
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("mesh", _extends({}, props, {
     ref: play,
+    position: initpos ? [initpos.pos.x, initpos.pos.y, initpos.pos.z] : [0, 0, 0],
     name: "local"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("boxBufferGeometry", {
     args: [1, 2, 1]
@@ -21590,15 +21606,15 @@ function Scene(props) {
     top: 0,
     "zIndex": 2,
     display: "block"
-  };
-  (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    document.body.style.width = '50px';
-    canvas.current.style.display = 'none';
-    setTimeout(() => {
-      document.body.style.width = '100%';
-      canvas.current.style.display = 'block';
-    }, 1500);
-  });
+  }; // useEffect(() => {
+  //     document.body.style.width = '50px'
+  //     canvas.current.style.display = 'none'
+  //     setTimeout(() => {
+  //         document.body.style.width = '100%'
+  //         canvas.current.style.display = 'block'
+  //     },1500)
+  // })
+
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Server, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "paused",
     style: overlay,
@@ -21811,14 +21827,9 @@ if ("onpointerlockchange" in document) {
 
 function lockChangeAlert() {
   if (document.pointerLockElement === document.getElementById('root') || document.mozPointerLockElement === document.getElementById('root')) {
-    console.log('The pointer lock status is now locked'); // Do something useful in response
-
-    if (!paused) {
-      console.log("WOOHOO");
-    }
+    // Do something useful in response
+    if (!paused) {}
   } else {
-    console.log('The pointer lock status is now unlocked');
-
     if (!paused) {
       setCooldown();
       document.getElementById('paused').style.display = 'block';

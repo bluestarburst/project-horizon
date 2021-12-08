@@ -19,6 +19,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { PerspectiveCamera } from '@react-three/drei'
 */
 
+var initpos = JSON.parse(getCookie('session'));
+
 const fps = 60;
 
 let keys = {};
@@ -42,6 +44,13 @@ function Camera(props) {
     useEffect(() => void set({ camera: ref.current }), []);
 
     var stopped = false;
+
+    useEffect(() => {
+        ref.current.aspect = window.innerWidth / window.innerHeight;
+        ref.current.updateProjectionMatrix();
+
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+    }, []);
 
     // Update it every frame
     useFrame(() => {
@@ -83,7 +92,7 @@ function Camera(props) {
         }
     })
     return <>
-        <perspectiveCamera ref={ref} {...props} />
+        <perspectiveCamera aspect={16 / 9} ref={ref} {...props} />
     </>
 }
 
@@ -150,7 +159,7 @@ function Player(props) {
     </mesh>);
 }
 
-var initpos = JSON.parse(getCookie('session'));
+
 
 
 function LocalPlayer(props) {
@@ -175,8 +184,15 @@ function LocalPlayer(props) {
     var world = new THREE.Euler(0, 0, 0, 'XYZ');
     var tempY = 0;
 
-    var oldPos = new THREE.Vector3(0, 0, 0);
-    var newPos = new THREE.Vector3(0, 0, 0);
+    if (initpos) {
+        var oldPos = new THREE.Vector3(initpos.pos.x, initpos.pos.y, initpos.pos.z);
+        var newPos = new THREE.Vector3(initpos.pos.x, initpos.pos.y, initpos.pos.z);
+    } else {
+        var oldPos = new THREE.Vector3(0, 0, 0);
+        var newPos = new THREE.Vector3(0, 0, 0);
+    }
+
+
 
     const col = useRef();
 
@@ -189,6 +205,10 @@ function LocalPlayer(props) {
 
         if (initpos) {
             play.current.position.set(initpos.pos.x, initpos.pos.y, initpos.pos.z);
+            col.current.position.set(initpos.pos.x, initpos.pos.y, initpos.pos.z);
+            pos.x = initpos.pos.x;
+            pos.y = initpos.pos.y;
+            pos.z = initpos.pos.z;
             initpos = null;
         }
 
@@ -410,6 +430,8 @@ function LocalPlayer(props) {
         pos.y = tempY + 0.5;
         pos.z = play.current.position.z;
 
+
+
         //play.current.rotation = rot;
         if (conn) {
             conn.sendToAll("player", [play.current.position.x, play.current.position.y, play.current.position.z, play.current.rotation.x, play.current.rotation.y, play.current.rotation.z]);
@@ -422,6 +444,7 @@ function LocalPlayer(props) {
             <mesh
                 {...props}
                 ref={play}
+                position={(initpos) ? [initpos.pos.x, initpos.pos.y, initpos.pos.z] : [0, 0, 0]}
                 name='local'>
                 <boxBufferGeometry args={[1, 2, 1]} />
                 <meshStandardMaterial color={'orange'} />
@@ -545,15 +568,15 @@ function Scene(props) {
         display: "block"
     }
 
-    useEffect(() => {
-        document.body.style.width = '50px'
-        canvas.current.style.display = 'none'
-        setTimeout(() => {
-            document.body.style.width = '100%'
-            canvas.current.style.display = 'block'
-        },1500)
+    // useEffect(() => {
+    //     document.body.style.width = '50px'
+    //     canvas.current.style.display = 'none'
+    //     setTimeout(() => {
+    //         document.body.style.width = '100%'
+    //         canvas.current.style.display = 'block'
+    //     },1500)
 
-    })
+    // })
 
     return (<>
         <Server />
@@ -765,13 +788,12 @@ if ("onpointerlockchange" in document) {
 function lockChangeAlert() {
     if (document.pointerLockElement === document.getElementById('root') ||
         document.mozPointerLockElement === document.getElementById('root')) {
-        console.log('The pointer lock status is now locked');
         // Do something useful in response
         if (!paused) {
-            console.log("WOOHOO")
+
         }
     } else {
-        console.log('The pointer lock status is now unlocked');
+
         if (!paused) {
             setCooldown();
             document.getElementById('paused').style.display = 'block';
