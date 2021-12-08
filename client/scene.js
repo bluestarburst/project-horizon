@@ -522,8 +522,11 @@ function Map(props) {
 
 function Scene(props) {
 
+    const canvas = useRef(null);
+
     const style = {
         position: "absolute",
+        display: "block",
         top: "0",
         left: "0",
         width: "100%",
@@ -542,13 +545,22 @@ function Scene(props) {
         display: "block"
     }
 
+    useEffect(() => {
+        document.body.style.width = '50px'
+        canvas.current.style.display = 'none'
+        setTimeout(() => {
+            document.body.style.width = '100%'
+            canvas.current.style.display = 'block'
+        },1500)
+
+    })
 
     return (<>
         <Server />
         <div id={"paused"} style={overlay} onClick={clicks}> </div>
         <input id="focus" />
         <Logs />
-        <Canvas style={style} id="canvas" onClick={clicks}>
+        <Canvas ref={canvas} style={style} id="canvas" onClick={clicks} dpr={Math.max(window.devicePixelRatio, 2)}>
             <ambientLight />
             <pointLight position={[10, 10, 10]} />
             <LocalPlayer />
@@ -580,13 +592,13 @@ var conn;
 
 function connect(_name, _serv) {
 
-    _serv.replace("wss://","");
-    _serv.replace("ws://","");
-    _serv.replace("http://","");
-    _serv.replace("https://","");
+    _serv.replace("wss://", "");
+    _serv.replace("ws://", "");
+    _serv.replace("http://", "");
+    _serv.replace("https://", "");
 
     console.log("Connecting");
-    conn = new webrtc(_name,_serv);
+    conn = new webrtc(_name, _serv);
     document.getElementById("name").disabled = true;
     document.getElementById("serv").disabled = true;
     document.getElementById("conn").disabled = true;
@@ -823,7 +835,7 @@ function getCookie(cname) {
 if (initpos) {
     name = initpos.name;
     serv = initpos.serv;
-    connect(initpos.name,initpos.serv);
+    connect(initpos.name, initpos.serv);
 }
 
 var scrollableElement = document.body; //document.getElementById('scrollableElement');

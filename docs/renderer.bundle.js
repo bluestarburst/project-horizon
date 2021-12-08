@@ -21571,8 +21571,10 @@ function Map(props) {
 }
 
 function Scene(props) {
+  const canvas = (0,react__WEBPACK_IMPORTED_MODULE_1__.useRef)(null);
   const style = {
     position: "absolute",
+    display: "block",
     top: "0",
     left: "0",
     width: "100%",
@@ -21589,6 +21591,14 @@ function Scene(props) {
     "zIndex": 2,
     display: "block"
   };
+  (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    document.body.style.width = '50px';
+    canvas.current.style.display = 'none';
+    setTimeout(() => {
+      document.body.style.width = '100%';
+      canvas.current.style.display = 'block';
+    }, 1500);
+  });
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Server, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "paused",
     style: overlay,
@@ -21596,9 +21606,11 @@ function Scene(props) {
   }, " "), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("input", {
     id: "focus"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Logs, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_react_three_fiber__WEBPACK_IMPORTED_MODULE_6__.Canvas, {
+    ref: canvas,
     style: style,
     id: "canvas",
-    onClick: clicks
+    onClick: clicks,
+    dpr: Math.max(window.devicePixelRatio, 2)
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("ambientLight", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("pointLight", {
     position: [10, 10, 10]
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(LocalPlayer, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(RemotePlayers, null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(Camera, {
@@ -21619,12 +21631,22 @@ function Loading(props) {
 }
 
 var name = "";
+var serv = "websocket.bryanthargreave.repl.co";
 var conn;
 
-function connect(_name) {
+function connect(_name, _serv) {
+  _serv.replace("wss://", "");
+
+  _serv.replace("ws://", "");
+
+  _serv.replace("http://", "");
+
+  _serv.replace("https://", "");
+
   console.log("Connecting");
-  conn = new _webrtc__WEBPACK_IMPORTED_MODULE_0__.default(_name);
+  conn = new _webrtc__WEBPACK_IMPORTED_MODULE_0__.default(_name, _serv);
   document.getElementById("name").disabled = true;
+  document.getElementById("serv").disabled = true;
   document.getElementById("conn").disabled = true;
 
   conn.onConnect = function () {
@@ -21670,7 +21692,7 @@ function connect(_name) {
 }
 
 function attemptConnection(e) {
-  connect(name);
+  connect(name, serv);
 }
 
 function Server() {
@@ -21689,12 +21711,23 @@ function Server() {
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react_bootstrap_InputGroup__WEBPACK_IMPORTED_MODULE_7__.default, {
     className: "mb-3"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react_bootstrap_FormControl__WEBPACK_IMPORTED_MODULE_8__.default, {
+    id: "serv",
+    value: "websocket.bryanthargreave.repl.co",
+    placeholder: "Server",
+    onChange: e => {
+      serv = e.target.value;
+    },
+    "aria-label": "server",
+    "aria-describedby": "basic-addon2"
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react_bootstrap_InputGroup__WEBPACK_IMPORTED_MODULE_7__.default, {
+    className: "mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react_bootstrap_FormControl__WEBPACK_IMPORTED_MODULE_8__.default, {
     id: "name",
     placeholder: "Username",
     onChange: e => {
       name = e.target.value;
     },
-    "aria-label": "Recipient's username",
+    "aria-label": "username",
     "aria-describedby": "basic-addon2"
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react_bootstrap_InputGroup__WEBPACK_IMPORTED_MODULE_7__.default.Append, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react_bootstrap_Button__WEBPACK_IMPORTED_MODULE_9__.default, {
     onClick: attemptConnection,
@@ -21729,12 +21762,15 @@ document.addEventListener("keydown", event => {
   if (!paused) keys[event.key] = true;
 
   if (event.key == 'p' && conn) {
-    conn = null;
+    conn.leave();
     players = {};
     console.log("disconnected");
     document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.getElementById("init").style.display = 'block';
     document.getElementById("name").disabled = false;
+    document.getElementById("name").value = name;
+    document.getElementById("serv").disabled = false;
+    document.getElementById("serv").value = serv;
     document.getElementById("conn").disabled = false;
   }
 
@@ -21814,7 +21850,8 @@ document.addEventListener("mousemove", event => {
 function saveLocal(pos) {
   var data = {
     pos: pos,
-    name: name
+    name: name,
+    serv: serv
   };
   setCookie('session', JSON.stringify(data), 10);
 }
@@ -21848,7 +21885,8 @@ function getCookie(cname) {
 
 if (initpos) {
   name = initpos.name;
-  connect(initpos.name);
+  serv = initpos.serv;
+  connect(initpos.name, initpos.serv);
 }
 
 var scrollableElement = document.body; //document.getElementById('scrollableElement');
@@ -21891,7 +21929,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ webrtc)
 /* harmony export */ });
 class webrtc {
-  constructor(_name) {
+  constructor(_name, _serv) {
     this.STUN = {
       urls: 'stun:stun.l.google.com:19302'
     };
@@ -21902,11 +21940,11 @@ class webrtc {
     this.peers = {};
     this.channels = {};
     this.serverConnection;
-    this.server();
+    this.server(_serv);
   }
 
-  async server() {
-    this.serverConnection = await this.connect();
+  async server(_serv) {
+    this.serverConnection = await this.connect(_serv);
 
     this.serverConnection.onmessage = message => {
       const data = JSON.parse(message.data);
@@ -21961,9 +21999,9 @@ class webrtc {
     delete this.channels[data];
   }
 
-  async connect() {
+  async connect(_serv) {
     return new Promise(function (resolve, reject) {
-      var server = new WebSocket("wss://websocket.bryanthargreave.repl.co/");
+      var server = new WebSocket("wss://" + _serv);
 
       server.onopen = function () {
         resolve(server);
@@ -22145,9 +22183,20 @@ class webrtc {
     });
   }
 
-  attemptDis(_name) {
-    this.onDis(_name);
-    this.onLeave(_name);
+  onDis(_name) {
+    this.send({
+      type: "leave",
+      name: _name
+    });
+  }
+
+  attemptDis() {
+    this.onDis(this.user);
+    this.onLeave(this.user);
+  }
+
+  leave() {
+    this.serverConnection.close();
   }
 
   send(data) {
