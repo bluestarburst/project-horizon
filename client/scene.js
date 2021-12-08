@@ -153,8 +153,6 @@ function Player(props) {
 var initpos = JSON.parse(getCookie('session'));
 
 
-
-
 function LocalPlayer(props) {
 
     const [clock] = React.useState(new THREE.Clock());
@@ -576,13 +574,21 @@ function Loading(props) {
 }
 
 var name = "";
+var serv = "websocket.bryanthargreave.repl.co";
 var conn;
 
 
-function connect(_name) {
+function connect(_name, _serv) {
+
+    _serv.replace("wss://","");
+    _serv.replace("ws://","");
+    _serv.replace("http://","");
+    _serv.replace("https://","");
+
     console.log("Connecting");
-    conn = new webrtc(_name);
+    conn = new webrtc(_name,_serv);
     document.getElementById("name").disabled = true;
+    document.getElementById("serv").disabled = true;
     document.getElementById("conn").disabled = true;
 
     conn.onConnect = function () {
@@ -622,7 +628,7 @@ function connect(_name) {
 }
 
 function attemptConnection(e) {
-    connect(name);
+    connect(name, serv);
 }
 
 function Server() {
@@ -639,12 +645,24 @@ function Server() {
     return (<div style={ui}>
         <div id="init">
             <InputGroup className="mb-3">
+
+                <FormControl id="serv"
+                    value="websocket.bryanthargreave.repl.co"
+                    placeholder="Server"
+                    onChange={(e) => {
+                        serv = e.target.value;
+                    }}
+                    aria-label="server"
+                    aria-describedby="basic-addon2"
+                />
+            </InputGroup>
+            <InputGroup className="mb-3">
                 <FormControl id="name"
                     placeholder="Username"
                     onChange={(e) => {
                         name = e.target.value;
                     }}
-                    aria-label="Recipient's username"
+                    aria-label="username"
                     aria-describedby="basic-addon2"
                 />
                 <InputGroup.Append>
@@ -685,12 +703,15 @@ document.addEventListener("keydown", event => {
         keys[event.key] = true;
 
     if (event.key == 'p' && conn) {
-        conn = null;
+        conn.leave();
         players = {};
         console.log("disconnected");
         document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.getElementById("init").style.display = 'block';
         document.getElementById("name").disabled = false;
+        document.getElementById("name").value = name;
+        document.getElementById("serv").disabled = false;
+        document.getElementById("serv").value = serv;
         document.getElementById("conn").disabled = false;
     }
 
@@ -770,7 +791,8 @@ document.addEventListener("mousemove", event => {
 function saveLocal(pos) {
     var data = {
         pos: pos,
-        name: name
+        name: name,
+        serv: serv
     }
     setCookie('session', JSON.stringify(data), 10);
 }
@@ -800,7 +822,8 @@ function getCookie(cname) {
 
 if (initpos) {
     name = initpos.name;
-    connect(initpos.name);
+    serv = initpos.serv;
+    connect(initpos.name,initpos.serv);
 }
 
 var scrollableElement = document.body; //document.getElementById('scrollableElement');

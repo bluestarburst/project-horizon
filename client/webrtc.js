@@ -1,10 +1,11 @@
 export default class webrtc {
 
-    constructor(_name) {
+    constructor(_name,_serv) {
 
         this.STUN = {
             urls: 'stun:stun.l.google.com:19302'
         };
+
 
         this.config = {
             iceServers: [this.STUN]
@@ -16,11 +17,11 @@ export default class webrtc {
         this.channels = {};
         this.serverConnection;
 
-        this.server();
+        this.server(_serv);
     }
 
-    async server() {
-        this.serverConnection = await this.connect();
+    async server(_serv) {
+        this.serverConnection = await this.connect(_serv);
         this.serverConnection.onmessage = message => {
             const data = JSON.parse(message.data);
             switch (data.type) {
@@ -64,9 +65,9 @@ export default class webrtc {
         delete this.channels[data];
     }
 
-    async connect() {
+    async connect(_serv) {
         return new Promise(function (resolve, reject) {
-            var server = new WebSocket("wss://websocket.bryanthargreave.repl.co/");
+            var server = new WebSocket("wss://" + _serv);
             server.onopen = function () {
                 resolve(server);
             };
@@ -223,9 +224,17 @@ export default class webrtc {
         this.send({ type: "offer", offer: offer, name: _name });
     }
 
-    attemptDis(_name) {
-        this.onDis(_name);
-        this.onLeave(_name);
+    onDis(_name) {
+        this.send({type: "leave", name: _name})
+    }
+
+    attemptDis() {
+        this.onDis(this.user);
+        this.onLeave(this.user);
+    }
+
+    leave() {
+        this.serverConnection.close();
     }
 
     send(data) {

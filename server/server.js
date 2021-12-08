@@ -11,6 +11,7 @@ var path = require('path');
 const serverConfig = {
   key: fs.readFileSync(__dirname + '/key.pem'),
   cert: fs.readFileSync(__dirname + '/cert.pem'),
+  passphrase: 'blue'
 };
 
 const HTTPS_PORT = 443;
