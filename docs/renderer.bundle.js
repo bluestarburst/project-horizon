@@ -21502,6 +21502,8 @@ function LocalPlayer(props) {
     if (conn) {
       conn.sendToAll("player", [play.current.position.x, play.current.position.y, play.current.position.z, play.current.rotation.x, play.current.rotation.y, play.current.rotation.z]);
       saveLocal(play.current.position);
+    } else {
+      document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
   });
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(react__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("mesh", _extends({}, props, {
@@ -21779,6 +21781,7 @@ document.addEventListener("keydown", event => {
 
   if (event.key == 'p' && conn) {
     conn.leave();
+    conn = null;
     players = {};
     console.log("disconnected");
     document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
